@@ -1,5 +1,10 @@
 import express from 'express';
+import db from './config/dbConnect.js'
 
+db.on("error", console.log.bind(console, 'Erro de conexão'))
+db.once("open", () => {
+	console.log('Conexão Estabelecida')
+})
 const app = express();
 app.use(express.json())
 
@@ -39,7 +44,7 @@ app.put('/livros/:id', (req, res) => {
 })
 
 app.delete('/livros/:id', (req, res) => {
-	let {id} = req.params;
+	let { id } = req.params;
 	let index = searchBook(id)
 	livros.splice(index, 1)
 	res.send(`Livro ${id} excluido.`)
