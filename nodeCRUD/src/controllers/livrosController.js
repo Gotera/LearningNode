@@ -7,6 +7,17 @@ class LivroController {
 		})
 	}
 
+	static listBooksById = (req, res) => {
+		let id = req.params.id
+		livros.findById(id, (err, livros) => {
+			if (err) {
+				res.status(400).send({ message: `${err.message} - Id do livro não localizado.` })
+			} else {
+				res.status(200).send({ livros })
+			}
+		})
+	}
+
 	static registerBook = (req, res) => {
 		let livro = new livros(req.body);
 		livro.save((err) => {
@@ -24,7 +35,7 @@ class LivroController {
 			if (!err) {
 				res.status(200).send({ message: 'Livro atualizado com sucesso' })
 			} else {
-				res.status(500).send({ message: err.message})
+				res.status(500).send({ message: err.message })
 			}
 		})
 	}
