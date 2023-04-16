@@ -22,16 +22,16 @@ class LivroController {
       });
   };
 
-  static registerBook = (req, res) => {
-    let livro = new livros(req.body);
-    livro.save((err) => {
-      if (err) {
-        res.status(500).send({ message: `${err.message} - falha ao cadastrar livro.` });
-      } else {
-        res.status(201).send(livro.toJSON());
-      }
-    });
+  static registerBook = async (req, res, next) => {
+    try {
+      let livro = new livros(req.body);
+      await livro.save();
+      res.status(201).send(livro.toJSON());
+    } catch (err) {
+      next(err);
+    }
   };
+
 
   static updateBook = (req, res) => {
     const id = req.params.id;
