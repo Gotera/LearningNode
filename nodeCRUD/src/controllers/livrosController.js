@@ -33,15 +33,14 @@ class LivroController {
   };
 
 
-  static updateBook = (req, res) => {
-    const id = req.params.id;
-    livros.findByIdAndUpdate(id, { $set: req.body }, (err) => {
-      if (!err) {
-        res.status(200).send({ message: 'Livro atualizado com sucesso!' });
-      } else {
-        res.status(500).send({ message: err.message });
-      }
-    });
+  static updateBook = async (req, res, next) => {
+    try {
+      const id = req.params.id;
+      await livros.findByIdAndUpdate(id, { $set: req.body });
+      res.status(200).send({ message: 'Livro atualizado com sucesso!' });
+    } catch (err) {
+      next(err);
+    }
   };
 
   static deleteBook = (req, res) => {
