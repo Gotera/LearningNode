@@ -43,15 +43,14 @@ class LivroController {
     }
   };
 
-  static deleteBook = (req, res) => {
-    const id = req.params.id;
-    livros.findByIdAndDelete(id, (err) => {
-      if (!err) {
-        res.status(200).send({ message: 'Livro excluido som sucesso!' });
-      } else {
-        res.status(500).send({ message: 'Livro não encontrado.' });
-      }
-    });
+  static deleteBook = async (req, res, next) => {
+    try {
+      const id = req.params.id;
+      await livros.findByIdAndDelete(id)
+      res.status(200).send({ message: 'Livro excluido som sucesso!' });
+    } catch (err) {
+      next(err);
+    }
   };
 
   static listBooksByEditora = (req, res) => {
