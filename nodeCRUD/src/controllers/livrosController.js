@@ -46,18 +46,22 @@ class LivroController {
   static deleteBook = async (req, res, next) => {
     try {
       const id = req.params.id;
-      await livros.findByIdAndDelete(id)
+      await livros.findByIdAndDelete(id);
       res.status(200).send({ message: 'Livro excluido som sucesso!' });
     } catch (err) {
       next(err);
     }
   };
 
-  static listBooksByEditora = (req, res) => {
-    const editora = req.query.editora;
-    livros.find({ 'editora': editora }, {}, (err, livros) => {
+  static listBooksByEditora = async (req, res, next) => {
+    try {
+      const editora = req.query.editora;
+      await livros.find({ 'editora': editora }, {});
       res.status(200).send(livros);
-    });
+    } catch (err) {
+      next(err);
+    }
   };
 }
+
 export default LivroController;
