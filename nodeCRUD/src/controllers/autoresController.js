@@ -1,5 +1,5 @@
 import notFound from '../errors/notFound.js';
-import autores from '../models/Autor.js';
+import { autores } from '../models/index.js';
 
 class autorController {
   static listAutors = (req, res) => {
