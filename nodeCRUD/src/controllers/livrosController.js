@@ -1,26 +1,33 @@
 import livros from '../models/Livro.js';
 
 class LivroController {
-  static listBooks = (req, res) => {
-    livros.find()
-      .populate('autor')
-      .exec((err, livros) => {
-        res.status(200).json(livros);
-      });
+  static listBooks = async (req, res, next) => {
+    try {
+      const livrosResult = await livros.find()
+        .populate('autor')
+        .exec();
+      res.status(200).json(livrosResult);
+    } catch (err) {
+      next(err);
+    }
   };
 
-  static listBooksById = (req, res) => {
-    let id = req.params.id;
-    livros.findById(id)
-      .populate('autor', 'nome')
-      .exec((err, livros) => {
-        if (err) {
-          res.status(400).send({ message: `${err.message} - Id do livro não localizado.` });
-        } else {
-          res.status(200).send({ livros });
-        }
-      });
+  static listBooksById = async (req, res, next) => {
+    try {
+      let id = req.params.id;
+      const bookResult = await livros.findById(id)
+        .populate('autor', 'nome')
+        .exec();
+      if (bookResult !== null) {
+        res.status(200).send({ bookResult });
+      } else {
+        res.status(404).send({ message: 'Id do autor não localizado.' });
+      }
+    } catch (err) {
+      next(err);
+    }
   };
+
 
   static registerBook = async (req, res, next) => {
     try {
