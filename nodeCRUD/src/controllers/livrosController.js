@@ -1,23 +1,11 @@
 import { autores, livros } from "../models/index.js";
-import incorrectRequisition from "../errors/incorrectRequisition.js";
 
 class LivroController {
   static listBooks = async (req, res, next) => {
     try {
-      let { limit = 5, pag = 1, ordering = "_id:-1" } = req.query;
-      let [orderingField, order] = ordering.split(":");
-      if (limit >= 0 && pag >= 0) {
-        const livrosResult = await livros
-          .find()
-          .sort({ [orderingField]: order })
-          .skip((pag - 1) * limit)
-          .limit(limit)
-          .populate("autor")
-          .exec();
-        res.status(200).json(livrosResult);
-      } else {
-        next(new incorrectRequisition());
-      }
+      const searchBook = livros.find();
+      req.result = searchBook;
+      next();
     } catch (err) {
       next(err);
     }
@@ -74,8 +62,9 @@ class LivroController {
     try {
       const search = await searchBySomething(req.query);
       if (!search) {
-        const bookResult = await livros.find(search).populate("autor");
-        res.status(200).send(bookResult);
+        const bookResult = livros.find(search).populate("autor");
+        req.result = bookResult;
+        next();
       } else {
         res.status(200).send([]);
       }
