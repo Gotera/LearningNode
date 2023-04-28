@@ -1,10 +1,23 @@
-import { autores, livros } from '../models/index.js';
+import { autores, livros } from "../models/index.js";
+import incorrectRequisition from "../errors/incorrectRequisition.js";
 
 class LivroController {
   static listBooks = async (req, res, next) => {
     try {
-      const livrosResult = await livros.find().populate('autor').exec();
-      res.status(200).json(livrosResult);
+      let { limit = 5, pag = 1, ordering = "_id:-1" } = req.query;
+      let [orderingField, order] = ordering.split(":");
+      if (limit >= 0 && pag >= 0) {
+        const livrosResult = await livros
+          .find()
+          .sort({ [orderingField]: order })
+          .skip((pag - 1) * limit)
+          .limit(limit)
+          .populate("autor")
+          .exec();
+        res.status(200).json(livrosResult);
+      } else {
+        next(new incorrectRequisition());
+      }
     } catch (err) {
       next(err);
     }
@@ -15,12 +28,12 @@ class LivroController {
       let id = req.params.id;
       const bookResult = await livros
         .findById(id)
-        .populate('autor', 'nome')
+        .populate("autor", "nome")
         .exec();
       if (bookResult !== null) {
         res.status(200).send({ bookResult });
       } else {
-        res.status(404).send({ message: 'Id do autor não localizado.' });
+        res.status(404).send({ message: "Id do autor não localizado." });
       }
     } catch (err) {
       next(err);
@@ -41,7 +54,7 @@ class LivroController {
     try {
       const id = req.params.id;
       await livros.findByIdAndUpdate(id, { $set: req.body });
-      res.status(200).send({ message: 'Livro atualizado com sucesso!' });
+      res.status(200).send({ message: "Livro atualizado com sucesso!" });
     } catch (err) {
       next(err);
     }
@@ -51,7 +64,7 @@ class LivroController {
     try {
       const id = req.params.id;
       await livros.findByIdAndDelete(id);
-      res.status(200).send({ message: 'Livro excluido com sucesso!' });
+      res.status(200).send({ message: "Livro excluido com sucesso!" });
     } catch (err) {
       next(err);
     }
@@ -61,7 +74,7 @@ class LivroController {
     try {
       const search = await searchBySomething(req.query);
       if (!search) {
-        const bookResult = await livros.find(search).populate('autor');
+        const bookResult = await livros.find(search).populate("autor");
         res.status(200).send(bookResult);
       } else {
         res.status(200).send([]);
@@ -75,7 +88,7 @@ class LivroController {
 async function searchBySomething(params) {
   const { editora, titulo, minPags, maxPags, nomeAutor } = params;
   let search = {};
-  const regex = new RegExp(titulo, 'i');
+  const regex = new RegExp(titulo, "i");
   //Search by editora
   if (editora) search.editora = editora;
   //Search by tittle
